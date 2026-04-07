@@ -45,7 +45,7 @@ AI-Memory-Mirror/
 └── requirements.txt        # Dependencies
 ⚙️ Installation & Setup
 1️⃣ Clone the Repository
-git clone https://github.com/your-username/ai-memory-mirror.git
+git clone https://github.com/sathyasree07/AI-mirror.git
 cd ai-memory-mirror
 2️⃣ Create Virtual Environment
 python -m venv venv
