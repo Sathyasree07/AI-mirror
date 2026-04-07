@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Interactive Profile Page</title>
+  <style>
+    :root{
+      --bg:#f3f4f6; --card:#fff; --muted:#6b7280; --accent:#0ea5a4; --glass: rgba(255,255,255,0.6);
+    }
+    [data-theme="dark"]{ --bg:#0b1220; --card:#071025; --muted:#9ca3af; --accent:#60a5fa; --glass: rgba(255,255,255,0.04);} 
+    *{box-sizing:border-box}
+    body{font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; margin:0;background:linear-gradient(180deg,var(--bg),#fff);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:32px}
+    .container{width:980px;max-width:95%;display:grid;grid-template-columns:320px 1fr;gap:24px;align-items:start}
+    .card{background:var(--card);border-radius:14px;padding:20px;box-shadow:0 6px 24px rgba(2,6,23,0.08);backdrop-filter:blur(6px)}
+    .profile-pic{width:120px;height:120px;border-radius:14px;object-fit:cover;border:4px solid rgba(255,255,255,0.06);background:linear-gradient(135deg,var(--accent),#7c3aed);display:block}
+    header{display:flex;gap:16px;align-items:center}
+    h1{font-size:20px;margin:0}
+    p.muted{color:var(--muted);margin:6px 0 0}
+
+    .edit-btn, .theme-toggle{background:transparent;border:1px solid rgba(0,0,0,0.06);padding:8px 12px;border-radius:8px;cursor:pointer}
+    .theme-toggle{margin-left:auto}
+
+    .meta{margin-top:16px;display:flex;gap:8px;flex-wrap:wrap}
+    .chip{padding:6px 10px;border-radius:999px;background:linear-gradient(90deg, rgba(0,0,0,0.04), rgba(255,255,255,0.02));font-size:13px}
+
+    .bio{margin-top:16px}
+    .bio textarea{width:100%;min-height:110px;padding:12px;border-radius:8px;border:1px solid rgba(0,0,0,0.06);resize:vertical;font-size:14px}
+
+    .right .card{height:100%}
+    .stats{display:flex;gap:12px}
+    .stat{flex:1;padding:12px;border-radius:10px;background:linear-gradient(180deg,var(--glass),transparent);text-align:center}
+    .stat b{display:block;font-size:18px}
+    .actions{display:flex;gap:8px;margin-top:12px}
+    .btn{padding:10px 14px;border-radius:10px;border:none;cursor:pointer}
+    .btn.primary{background:var(--accent);color:white}
+    .btn.ghost{background:transparent;border:1px solid rgba(0,0,0,0.06)}
+
+    .skills-input{display:flex;gap:8px;margin-top:12px}
+    .skills-input input{flex:1;padding:8px;border-radius:8px;border:1px solid rgba(0,0,0,0.06)}
+
+    footer.small{font-size:13px;color:var(--muted);margin-top:12px}
+
+    /* responsive */
+    @media (max-width:820px){
+      .container{grid-template-columns:1fr;}
+      .theme-toggle{display:none}
+    }
+  </style>
+</head>
+<body data-theme="light">
+  <div class="container">
+    <div class="card">
+      <header>
+        <img id="avatar" class="profile-pic" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='480' height='480'><rect width='100%' height='100%' fill='%230ea5a4'/><text x='50%' y='54%' font-size='180' font-family='Arial' fill='white' text-anchor='middle' dominant-baseline='middle'>U</text></svg>" alt="avatar">
+        <div style="flex:1">
+          <h1 id="name">Your Name</h1>
+          <p class="muted" id="role">Web Developer • Designer</p>
+          <p class="muted" id="location">Kochi, India</p>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <button class="edit-btn" id="toggleEdit">Edit</button>
+          <button class="theme-toggle" id="themeToggle" title="Toggle theme">🌙</button>
+        </div>
+      </header>
+
+      <div class="bio">
+        <label style="font-weight:600">Bio</label>
+        <div id="bioView" style="margin-top:8px;color:var(--muted)">A short bio goes here. Click Edit to change.</div>
+        <textarea id="bioEdit" style="display:none"></textarea>
+      </div>
+
+      <div class="meta">
+        <div class="chip">📧 <span id="email">you@example.com</span></div>
+        <div class="chip">🔗 <span id="website">example.com</span></div>
+      </div>
+
+      <div style="margin-top:12px">
+        <label style="font-weight:600">Skills</label>
+        <div id="skills" style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+          <div class="chip">HTML</div>
+          <div class="chip">CSS</div>
+          <div class="chip">JavaScript</div>
+        </div>
+
+        <div class="skills-input" id="skillsInput" style="display:none">
+          <input id="skillText" placeholder="Add a skill and press Enter" />
+          <button class="btn" id="addSkill">Add</button>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn primary" id="saveBtn" style="display:none">Save</button>
+        <button class="btn ghost" id="cancelBtn" style="display:none">Cancel</button>
+        <label style="margin-left:auto;display:flex;gap:8px;align-items:center"><input id="upload" type="file" accept="image/*" style="display:none"><button class="btn ghost" id="uploadBtn">Change Photo</button></label>
+      </div>
+
+      <footer class="small">Data saved to your browser (localStorage). This is a static demo — use it as a starting point.</footer>
+    </div>
+
+    <div class="card right">
+      <h2 style="margin-top:0">Profile Overview</h2>
+      <div class="stats" style="margin-top:8px">
+        <div class="stat"><b id="projectsCount">8</b>Projects</div>
+        <div class="stat"><b id="followersCount">1.2k</b>Followers</div>
+        <div class="stat"><b id="rating">4.8</b>Rating</div>
+      </div>
+
+      <section style="margin-top:18px">
+        <h3 style="margin:0 0 8px 0">Quick actions</h3>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn ghost" id="exportBtn">Export JSON</button>
+          <button class="btn ghost" id="resetBtn">Reset Profile</button>
+          <button class="btn ghost" id="copyBtn">Copy Profile Link</button>
+        </div>
+      </section>
+
+      <section style="margin-top:18px">
+        <h3 style="margin:0 0 8px 0">Preview</h3>
+        <div style="border:1px dashed rgba(0,0,0,0.06);padding:12px;border-radius:8px">
+          <strong id="previewName">Your Name</strong>
+          <div id="previewRole" style="color:var(--muted)">Web Developer</div>
+          <p id="previewBio" style="margin-top:8px;color:var(--muted)">A short bio goes here. Click Edit to change.</p>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <script>
+    // tiny helper
+    const $ = id => document.getElementById(id);
+
+    const state = {
+      name: 'Your Name',
+      role: 'Web Developer • Designer',
+      location: 'Kochi, India',
+      email: 'you@example.com',
+      website: 'example.com',
+      bio: 'A short bio goes here. Click Edit to change.',
+      skills: ['HTML','CSS','JavaScript'],
+      projects: 8,
+      followers: '1.2k',
+      rating: 4.8
+    };
+
+    function render(){
+      $('name').textContent = state.name;
+      $('role').textContent = state.role;
+      $('location').textContent = state.location;
+      $('email').textContent = state.email;
+      $('website').textContent = state.website;
+      $('bioView').textContent = state.bio;
+      $('bioEdit').value = state.bio;
+      $('skills').innerHTML = state.skills.map(s=>`<div class="chip">${s} <button data-skill="${s}" style="margin-left:8px;border:none;background:transparent;cursor:pointer">✕</button></div>`).join('');
+      $('projectsCount').textContent = state.projects;
+      $('followersCount').textContent = state.followers;
+      $('rating').textContent = state.rating;
+      $('previewName').textContent = state.name;
+      $('previewRole').textContent = state.role.split('•')[0] || state.role;
+      $('previewBio').textContent = state.bio;
+      // wire up skill remove buttons
+      document.querySelectorAll('#skills .chip button').forEach(btn=>{
+        btn.addEventListener('click', e=>{
+          const s = e.currentTarget.dataset.skill;
+          state.skills = state.skills.filter(x=>x!==s);
+          render();
+        })
+      })
+      saveToLocal();
+    }
+
+    function saveToLocal(){
+      localStorage.setItem('profile_demo', JSON.stringify(state));
+    }
+    function loadFromLocal(){
+      const raw = localStorage.getItem('profile_demo');
+      if(raw) Object.assign(state, JSON.parse(raw));
+    }
+
+    // init
+    loadFromLocal(); render();
+
+    // Edit mode
+    let editing = false;
+    $('toggleEdit').addEventListener('click', ()=>{
+      editing = !editing;
+      $('bioEdit').style.display = editing ? 'block' : 'none';
+      $('bioView').style.display = editing ? 'none' : 'block';
+      $('skillsInput').style.display = editing ? 'flex' : 'none';
+      $('saveBtn').style.display = editing ? 'inline-block' : 'none';
+      $('cancelBtn').style.display = editing ? 'inline-block' : 'none';
+      $('toggleEdit').textContent = editing ? 'Editing' : 'Edit';
+    })
+
+    $('addSkill').addEventListener('click', ()=>{
+      const v = $('skillText').value.trim();
+      if(!v) return; state.skills.push(v); $('skillText').value=''; render();
+    })
+    $('skillText').addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); $('addSkill').click(); }})
+
+    $('saveBtn').addEventListener('click', ()=>{
+      // basic validation (no ask from user)
+      state.bio = $('bioEdit').value.trim() || state.bio;
+      // update name, role etc via prompt (simple inline editing)
+      const newName = prompt('Name', state.name);
+      if(newName!==null) state.name = newName.trim() || state.name;
+      const newRole = prompt('Role (e.g. Web Developer • Designer)', state.role);
+      if(newRole!==null) state.role = newRole.trim() || state.role;
+      const newLocation = prompt('Location', state.location);
+      if(newLocation!==null) state.location = newLocation.trim() || state.location;
+      const newEmail = prompt('Email', state.email);
+      if(newEmail!==null) state.email = newEmail.trim() || state.email;
+      const newWebsite = prompt('Website', state.website);
+      if(newWebsite!==null) state.website = newWebsite.trim() || state.website;
+      editing = false; $('toggleEdit').click(); render();
+    })
+
+    $('cancelBtn').addEventListener('click', ()=>{ editing=false; $('toggleEdit').click(); render(); })
+
+    // photo upload
+    $('uploadBtn').addEventListener('click', ()=>$('upload').click());
+    $('upload').addEventListener('change', (ev)=>{
+      const f = ev.target.files && ev.target.files[0];
+      if(!f) return;
+      const reader = new FileReader();
+      reader.onload = e => { $('avatar').src = e.target.result; };
+      reader.readAsDataURL(f);
+    })
+
+    // theme toggle
+    $('themeToggle').addEventListener('click', ()=>{
+      const el = document.body;
+      const isDark = el.getAttribute('data-theme') === 'dark';
+      el.setAttribute('data-theme', isDark ? 'light' : 'dark');
+      $('themeToggle').textContent = isDark ? '🌙' : '☀️';
+    })
+
+    // quick actions
+    $('exportBtn').addEventListener('click', ()=>{
+      const blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'profile.json'; a.click(); URL.revokeObjectURL(url);
+    })
+
+    $('resetBtn').addEventListener('click', ()=>{
+      if(!confirm('Reset profile to defaults?')) return;
+      localStorage.removeItem('profile_demo'); location.reload();
+    })
+
+    $('copyBtn').addEventListener('click', async ()=>{
+      const text = JSON.stringify(state);
+      try{ await navigator.clipboard.writeText(text); alert('Profile JSON copied to clipboard'); }catch(e){ prompt('Copy this:', text); }
+    })
+
+    // small UX: update preview while typing
+    $('bioEdit').addEventListener('input', ()=>{ $('previewBio').textContent = $('bioEdit').value; });
+  </script>
+</body>
+</html>
